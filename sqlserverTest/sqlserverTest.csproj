@@ -54,7 +54,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="sqlServerOperationFunc.cs" />
+    <Compile Include="sqlServerOperationFuncs\CreateandDrop.cs" />
+    <Compile Include="sqlServerOperationFuncs\InsertandDelete.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

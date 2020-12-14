@@ -13,7 +13,6 @@ namespace sqlserverTest
             form1 = this;
         }
 
-        sqlServerOperation rw = new sqlServerOperation();
         string connectionString = "Data Source = (local);Initial Catalog = tempdb;Integrated Security = true";
 
         /// <summary>
@@ -23,24 +22,25 @@ namespace sqlserverTest
         /// <param name="e"></param>
         private void Create_Click(object sender, EventArgs e)
         {
+            CreateandDrop sqlCD = new CreateandDrop();
             string fileName = @"D:\Data\sqlserver\test.mdf";
             string dataBaseName = "testTable";
             string DataTableName = "coor";
 
             SqlConnection sqlCnt = new SqlConnection(connectionString);
-            rw.sqlCreate(fileName, sqlCnt);
+            sqlCD.sqlCreate(fileName, sqlCnt);
             // 显示所有数据表
-            string[] tablesName = rw.getDataTablesName(dataBaseName, sqlCnt);
+            string[] tablesName = sqlCD.getDataTablesName(dataBaseName, sqlCnt);
             foreach (var em in tablesName)
             {
                 Form1.form1.richTextBox1.Text += em + "\r\n";
             }
             // 创建数据表
-            rw.createDataTable(DataTableName, sqlCnt);
+            sqlCD.createDataTable(DataTableName, sqlCnt);
             // 插入一列
-            rw.addColumns(DataTableName, new string[] { "X" }, new string[] { "INT" }, sqlCnt);
+            sqlCD.addColumns(DataTableName, new string[] { "X" }, new string[] { "INT" }, sqlCnt);
             // 查询某个数据表的列名
-            string[] columns = rw.getColumns(DataTableName, sqlCnt);
+            string[] columns = sqlCD.getColumns(DataTableName, sqlCnt);
             foreach (var em in columns)
             {
                 Form1.form1.richTextBox1.Text += em + "\r\n";

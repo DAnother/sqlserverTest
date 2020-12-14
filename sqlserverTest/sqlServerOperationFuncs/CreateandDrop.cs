@@ -2,13 +2,12 @@
 using System.Data.SqlClient;
 using System.Windows.Forms;
 using System;
-using System.Text;
 using System.IO;
 using System.Collections;
 
 namespace sqlserverTest
 {
-    class sqlServerOperation
+    class CreateandDrop
     {
         /// <summary>
         /// 创建数据库、数据表
@@ -79,7 +78,7 @@ namespace sqlserverTest
         /// 添加数据
         /// </summary>
         /// <param name="fileName"></param>
-        public void sqlWrite(string fileName,SqlConnection sqlCnt)
+        public void sqlWrite(string fileName, SqlConnection sqlCnt)
         {
             sqlCnt.Open();
             SqlCommand command = sqlCnt.CreateCommand();
@@ -103,7 +102,7 @@ namespace sqlserverTest
             SqlCommand command = connection.CreateCommand();
             command.CommandText = "SELECT * FROM HD_STREETVIEW_IMAGEINFO";
             SqlDataReader reader = command.ExecuteReader();
-            while(reader.Read())
+            while (reader.Read())
             {
                 Form1.form1.richTextBox1.Text = reader.GetString(1);
             }
@@ -294,12 +293,12 @@ namespace sqlserverTest
         /// <param name="dataBaseName"></param>
         /// <param name="sqlCnt"></param>
         /// <returns></returns>
-        public string[] getDataTablesName(string dataBaseName,SqlConnection sqlCnt)
+        public string[] getDataTablesName(string dataBaseName, SqlConnection sqlCnt)
         {
             ArrayList tables = new ArrayList();
             if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
             try
-            {                
+            {
                 // 可用于列举数据表 便于调试
                 // 使用信息架构视图
                 SqlCommand sqlcmd = new SqlCommand("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'", sqlCnt);
@@ -309,7 +308,8 @@ namespace sqlserverTest
                     tables.Add(dr.GetString(0));
                 }
                 dr.Close();
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString(), "Error");
             }
@@ -327,7 +327,7 @@ namespace sqlserverTest
         /// <param name="tableName"></param>
         /// <param name="sqlCnt"></param>
         /// <returns></returns>
-        public string[] getColumns(string tableName,SqlConnection sqlCnt)
+        public string[] getColumns(string tableName, SqlConnection sqlCnt)
         {
             ArrayList array = new ArrayList();
             try
@@ -342,7 +342,7 @@ namespace sqlserverTest
                     array.Add(dr.GetString(0));
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString(), "Error");
             }
@@ -361,7 +361,7 @@ namespace sqlserverTest
         /// <param name="columnNames">列名</param>
         /// <param name="typeofColumn">列类型 例如：INT、varchar(30)</param>
         /// <param name="sqlCnt"></param>
-        public void addColumns(string tableName,string[] columnsName,string[] typeofColumn,SqlConnection sqlCnt)
+        public void addColumns(string tableName, string[] columnsName, string[] typeofColumn, SqlConnection sqlCnt)
         {
             if (columnsName.Length != typeofColumn.Length)
             {
@@ -379,38 +379,7 @@ namespace sqlserverTest
                     sqlCmd.ExecuteNonQuery();
                 }
             }
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.ToString(), "Error");
-            }
-            finally
-            {
-                sqlCnt.Close();
-                // sqlCnt.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// 指定字段插入数据
-        /// </summary>
-        /// <param name="tableName">表名</param>
-        /// <param name="columnsName">字段名</param>
-        /// <param name="values">值-字符串数组</param>
-        /// <param name="sqlCnt"></param>
-        public void insertValues(string tableName, string columnsName, string[] values, SqlConnection sqlCnt)
-        {
-            try
-            {
-                if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
-                SqlCommand sqlCmd = sqlCnt.CreateCommand();
-                for (int i = 0; i < values.Length; i++)
-                {
-                    sqlCmd.CommandText =
-                        String.Format("INSERT INTO {0}({1}) VALUES({2})", tableName, columnsName, values[i]);
-                    sqlCmd.ExecuteNonQuery();
-                }
-            }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString(), "Error");
             }
