@@ -5,20 +5,34 @@ using System;
 using System.IO;
 using System.Collections;
 
-namespace sqlserverTest
+namespace sqlServerOperationFuncs
 {
+    /*
+     * CreateandDrop类主要实现功能
+     * 1.创建数据库
+     * 2.创建数据表
+     * 3.判断数据库是否存在
+     * 4.判断数据表是否存在
+     * 5.判断文件是否存在
+     * 6.删除数据库
+     * 7.删除数据表
+     * 8.获取数据表名列表
+     * 以上 2020-12-14
+     */
+
     class CreateandDrop
     {
         /// <summary>
-        /// 创建数据库、数据表
+        /// 
         /// </summary>
         /// <param name="fileName"></param>
-        /// <param name="tableName"></param>
+        /// <param name="sqlCnt"></param>
+        /// <param name="isAlwaysDetDataBase">是否始终删除数据库并重建</param>
         /// <returns></returns>
-        public bool sqlCreate(string fileName, SqlConnection sqlCnt)
+        public bool sqlCreate(string fileName, SqlConnection sqlCnt, bool isAlwaysDetDataBase)
         {
             // 建立数据库连接
-            sqlCnt.Open();
+            if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
 
             // 实例化一个SqlCommand对象，绑定连接
             SqlCommand sqlCmd = new SqlCommand();
@@ -27,16 +41,16 @@ namespace sqlserverTest
              * 或者直接利用SQLConnection创建SQLCommand对象
              * SqlCommand SqlCmd = sqlCnt.CreateCommand();
              */
-            string databaseName = Path.GetFileNameWithoutExtension(fileName);
+            string dataBaseName = Path.GetFileNameWithoutExtension(fileName);
             // 检查数据库是否存在 若存在则考虑是否删除
-            int flag = (isDataBaseExists(databaseName, sqlCnt) + isFileExists(Path.GetDirectoryName(fileName), Path.GetFileName(fileName))) > 0 ? 1 : 0;
+            int flag = (isDataBaseExists(dataBaseName, sqlCnt) + isFileExists(Path.GetDirectoryName(fileName), Path.GetFileName(fileName))) > 0 ? 1 : 0;
             if (flag == 1)
             {
                 MessageBox.Show("该数据库已存在，无法再次创建", "Warning!");
-                if (MessageBox.Show("是否删除该数据库以及数据库分离文件并重新创建\r\n请谨慎删除！！！", "Warning!", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                if (isAlwaysDetDataBase || MessageBox.Show("是否删除该数据库以及数据库分离文件并重新创建\r\n请谨慎删除！！！", "Warning!", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    if (isDataBaseExists(databaseName, sqlCnt) > 0)
-                        detDataBase(databaseName, sqlCnt);
+                    if (isDataBaseExists(dataBaseName, sqlCnt) > 0)
+                        detDataBase(dataBaseName, sqlCnt);
                     // 删除.mdf、日志文件
                     if (isFileExists(Path.GetDirectoryName(fileName), Path.GetFileName(fileName)) > 0)
                     {
@@ -59,11 +73,11 @@ namespace sqlserverTest
             if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
             // 创建数据库
             sqlCmd.CommandText =
-                String.Format("CREATE DATABASE {0} ON PRIMARY(NAME={0}, FILENAME='{1}')", databaseName, fileName);
+                String.Format("CREATE DATABASE {0} ON PRIMARY(NAME={0}, FILENAME='{1}')", dataBaseName, fileName);
             sqlCmd.ExecuteNonQuery();
             // 分离数据库 便于拷贝数据文件
             sqlCmd.CommandText =
-                String.Format("EXEC sp_detach_db '{0}', 'true'", databaseName);
+                String.Format("EXEC sp_detach_db '{0}', 'true'", dataBaseName);
             sqlCmd.ExecuteNonQuery();
 
             // 关闭连接
@@ -75,57 +89,25 @@ namespace sqlserverTest
         }
 
         /// <summary>
-        /// 添加数据
-        /// </summary>
-        /// <param name="fileName"></param>
-        public void sqlWrite(string fileName, SqlConnection sqlCnt)
-        {
-            sqlCnt.Open();
-            SqlCommand command = sqlCnt.CreateCommand();
-            command.CommandText = "test";
-
-            sqlCnt.Close();
-            sqlCnt.Dispose();
-        }
-
-        /// <summary>
-        /// 读取数据
-        /// </summary>
-        /// <param name="fileName"></param>
-        public void sqlRead(string fileName)
-        {
-            string connectionDataFile =
-                String.Format(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename={0};Integrated Security=True", fileName);
-
-            SqlConnection connection = new SqlConnection(connectionDataFile);
-            connection.Open();
-            SqlCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM HD_STREETVIEW_IMAGEINFO";
-            SqlDataReader reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                Form1.form1.richTextBox1.Text = reader.GetString(1);
-            }
-            connection.Close();
-            connection.Dispose();
-        }
-
-        /// <summary>
         /// 创建数据表
         /// </summary>
+        /// <param name="dataTableName"></param>
         /// <param name="sqlCnt">连接选项</param>
-        public void createDataTable(string dataTableName, SqlConnection sqlCnt)
+        /// <param name="isAlwaysDetDataTable">是否始终删除</param>
+        public void createDataTable(string dataTableName, SqlConnection sqlCnt, bool isAlwaysDetDataTable)
         {
-            int flag = 0;
-            flag = isDataTableExists(dataTableName, sqlCnt);
+            int flag = isDataTableExists(dataTableName, sqlCnt);
             try
             {
                 if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
                 // 首先判断数据表是否存在
                 if (flag == 1)
                 {
-                    if (MessageBox.Show("该数据表已存在，是否删除并重新创建", "Error", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    if (isAlwaysDetDataTable || MessageBox.Show("该数据表已存在，是否删除并重新创建", "Error", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
                         detDataTable(dataTableName, sqlCnt);
+                        sqlCnt.Open();
+                    }
                     else
                     {
                         MessageBox.Show("无法成功创建数据表，原因：该数据表已存在", "Error");
@@ -293,16 +275,18 @@ namespace sqlserverTest
         /// <param name="dataBaseName"></param>
         /// <param name="sqlCnt"></param>
         /// <returns></returns>
-        public string[] getDataTablesName(string dataBaseName, SqlConnection sqlCnt)
+        public string[] getDataTablesName(SqlConnection sqlCnt)
         {
             ArrayList tables = new ArrayList();
             if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
             try
             {
+                SqlCommand sqlCmd = sqlCnt.CreateCommand();
                 // 可用于列举数据表 便于调试
                 // 使用信息架构视图
-                SqlCommand sqlcmd = new SqlCommand("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'", sqlCnt);
-                SqlDataReader dr = sqlcmd.ExecuteReader();
+                sqlCmd.CommandText =
+                    String.Format("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
+                SqlDataReader dr = sqlCmd.ExecuteReader();
                 while (dr.Read())
                 {
                     tables.Add(dr.GetString(0));
@@ -319,75 +303,6 @@ namespace sqlserverTest
                 // sqlCnt.Dispose();
             }
             return (string[])tables.ToArray(typeof(string));
-        }
-
-        /// <summary>
-        /// 查询数据表的列名
-        /// </summary>
-        /// <param name="tableName"></param>
-        /// <param name="sqlCnt"></param>
-        /// <returns></returns>
-        public string[] getColumns(string tableName, SqlConnection sqlCnt)
-        {
-            ArrayList array = new ArrayList();
-            try
-            {
-                if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
-                SqlCommand sqlCmd = sqlCnt.CreateCommand();
-                sqlCmd.CommandText =
-                    String.Format("SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_NAME = '{0}'", tableName);
-                SqlDataReader dr = sqlCmd.ExecuteReader();
-                while (dr.Read())
-                {
-                    array.Add(dr.GetString(0));
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString(), "Error");
-            }
-            finally
-            {
-                sqlCnt.Close();
-                // sqlCnt.Dispose();
-            }
-            return (string[])array.ToArray(typeof(string));
-        }
-
-        /// <summary>
-        /// 指定数据表添加列
-        /// </summary>
-        /// <param name="tableName">表名</param>
-        /// <param name="columnNames">列名</param>
-        /// <param name="typeofColumn">列类型 例如：INT、varchar(30)</param>
-        /// <param name="sqlCnt"></param>
-        public void addColumns(string tableName, string[] columnsName, string[] typeofColumn, SqlConnection sqlCnt)
-        {
-            if (columnsName.Length != typeofColumn.Length)
-            {
-                MessageBox.Show("请输入相匹配数量的列名与类型");
-                return;
-            }
-            try
-            {
-                if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
-                for (int i = 0; i < columnsName.Length; i++)
-                {
-                    SqlCommand sqlCmd = sqlCnt.CreateCommand();
-                    sqlCmd.CommandText =
-                        String.Format("ALTER TABLE {0} ADD {1} {2}", tableName, columnsName[i], typeofColumn[i]);
-                    sqlCmd.ExecuteNonQuery();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString(), "Error");
-            }
-            finally
-            {
-                sqlCnt.Close();
-                // sqlCnt.Dispose();
-            }
         }
     }
 }
