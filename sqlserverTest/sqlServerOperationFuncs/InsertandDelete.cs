@@ -10,11 +10,13 @@ namespace sqlServerOperationFuncs
      * InsertandDelete类主要实现功能
      * 1.添加字段
      * 2.按行插入数据
+     * 3.删除字段
      * 以上 2020-12-14
      * 3.
      */
     class InsertandDelete
     {
+        Read reader = new Read();
         /// <summary>
         /// 指定数据表添加列
         /// </summary>
@@ -55,6 +57,12 @@ namespace sqlServerOperationFuncs
         /// <param name="isAlwaysUsing0InsteadNull">True表示默认使用0值代替空值（缺少值）</param>
         public void insertValues(string tableName, string[] columnsName, string[] values, SqlConnection sqlCnt, bool isAlwaysUsing0InsteadNull)
         {
+            int columnCount = reader.getColumns(tableName, sqlCnt).Length;
+            if (columnsName.Length > columnCount - 1)
+            {
+                MessageBox.Show("输入字段数超出数据表包含字段数，请确认是否有误", "Error");
+                return;
+            }
             string columnNames = "";
             string valueStr = "";
             // 获取所有字段组合成一个字符串
@@ -111,6 +119,43 @@ namespace sqlServerOperationFuncs
             {
                 sqlCnt.Close();
                 // sqlCnt.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// 删除字段
+        /// </summary>
+        /// <param name="columnName"></param>
+        /// <param name="tableName"></param>
+        /// <param name="sqlCnt"></param>
+        public void detColumn(string columnName, string tableName, SqlConnection sqlCnt)
+        {      
+            try
+            {
+                string[] columnsName = reader.getColumns(tableName, sqlCnt);
+                int flag = 0;
+                foreach(string str in columnsName)
+                {
+                    if (str == columnName) flag++;
+                }
+                if (flag == 0)
+                {
+                    MessageBox.Show("不存在该字段，无法删除", "Error");
+                    return;
+                }
+                if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
+                SqlCommand sqlCmd = sqlCnt.CreateCommand();
+                sqlCmd.CommandText =
+                    String.Format("ALTER TABLE {0} DROP COLUMN {1}", tableName, columnName);
+                sqlCmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString(), "Error");
+            }
+            finally
+            {
+                sqlCnt.Close();
             }
         }
 

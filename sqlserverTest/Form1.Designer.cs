@@ -32,13 +32,17 @@
             this.Write = new System.Windows.Forms.Button();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.Read = new System.Windows.Forms.Button();
+            this.AlwaysDeteleDataBase = new System.Windows.Forms.CheckBox();
+            this.AlwaysDeteleDataTable = new System.Windows.Forms.CheckBox();
+            this.AlwaysUsing0InsteadNull = new System.Windows.Forms.CheckBox();
+            this.Delete = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // Cteate
             // 
             this.Cteate.Location = new System.Drawing.Point(638, 12);
             this.Cteate.Name = "Cteate";
-            this.Cteate.Size = new System.Drawing.Size(150, 144);
+            this.Cteate.Size = new System.Drawing.Size(150, 91);
             this.Cteate.TabIndex = 0;
             this.Cteate.Text = "Create";
             this.Cteate.UseVisualStyleBackColor = true;
@@ -46,9 +50,9 @@
             // 
             // Write
             // 
-            this.Write.Location = new System.Drawing.Point(638, 162);
+            this.Write.Location = new System.Drawing.Point(638, 131);
             this.Write.Name = "Write";
-            this.Write.Size = new System.Drawing.Size(150, 135);
+            this.Write.Size = new System.Drawing.Size(150, 81);
             this.Write.TabIndex = 1;
             this.Write.Text = "Write";
             this.Write.UseVisualStyleBackColor = true;
@@ -56,27 +60,77 @@
             // 
             // richTextBox1
             // 
-            this.richTextBox1.Location = new System.Drawing.Point(12, 12);
+            this.richTextBox1.Location = new System.Drawing.Point(12, 38);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(620, 426);
+            this.richTextBox1.Size = new System.Drawing.Size(620, 400);
             this.richTextBox1.TabIndex = 2;
             this.richTextBox1.Text = "";
             // 
             // Read
             // 
-            this.Read.Location = new System.Drawing.Point(638, 303);
+            this.Read.Location = new System.Drawing.Point(638, 238);
             this.Read.Name = "Read";
-            this.Read.Size = new System.Drawing.Size(150, 135);
+            this.Read.Size = new System.Drawing.Size(150, 86);
             this.Read.TabIndex = 3;
             this.Read.Text = "Read";
             this.Read.UseVisualStyleBackColor = true;
             this.Read.Click += new System.EventHandler(this.Read_Click);
+            // 
+            // AlwaysDeteleDataBase
+            // 
+            this.AlwaysDeteleDataBase.AutoSize = true;
+            this.AlwaysDeteleDataBase.Checked = true;
+            this.AlwaysDeteleDataBase.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.AlwaysDeteleDataBase.Location = new System.Drawing.Point(12, 12);
+            this.AlwaysDeteleDataBase.Name = "AlwaysDeteleDataBase";
+            this.AlwaysDeteleDataBase.Size = new System.Drawing.Size(189, 19);
+            this.AlwaysDeteleDataBase.TabIndex = 7;
+            this.AlwaysDeteleDataBase.Text = "AlwaysDeteleDataBase";
+            this.AlwaysDeteleDataBase.UseVisualStyleBackColor = true;
+            // 
+            // AlwaysDeteleDataTable
+            // 
+            this.AlwaysDeteleDataTable.AutoSize = true;
+            this.AlwaysDeteleDataTable.Checked = true;
+            this.AlwaysDeteleDataTable.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.AlwaysDeteleDataTable.Location = new System.Drawing.Point(207, 12);
+            this.AlwaysDeteleDataTable.Name = "AlwaysDeteleDataTable";
+            this.AlwaysDeteleDataTable.Size = new System.Drawing.Size(197, 19);
+            this.AlwaysDeteleDataTable.TabIndex = 8;
+            this.AlwaysDeteleDataTable.Text = "AlwaysDeteleDataTable";
+            this.AlwaysDeteleDataTable.UseVisualStyleBackColor = true;
+            // 
+            // AlwaysUsing0InsteadNull
+            // 
+            this.AlwaysUsing0InsteadNull.AutoSize = true;
+            this.AlwaysUsing0InsteadNull.Checked = true;
+            this.AlwaysUsing0InsteadNull.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.AlwaysUsing0InsteadNull.Location = new System.Drawing.Point(410, 12);
+            this.AlwaysUsing0InsteadNull.Name = "AlwaysUsing0InsteadNull";
+            this.AlwaysUsing0InsteadNull.Size = new System.Drawing.Size(213, 19);
+            this.AlwaysUsing0InsteadNull.TabIndex = 9;
+            this.AlwaysUsing0InsteadNull.Text = "AlwaysUsing0InsteadNull";
+            this.AlwaysUsing0InsteadNull.UseVisualStyleBackColor = true;
+            // 
+            // Delete
+            // 
+            this.Delete.Location = new System.Drawing.Point(638, 352);
+            this.Delete.Name = "Delete";
+            this.Delete.Size = new System.Drawing.Size(150, 86);
+            this.Delete.TabIndex = 10;
+            this.Delete.Text = "Delete";
+            this.Delete.UseVisualStyleBackColor = true;
+            this.Delete.Click += new System.EventHandler(this.Delete_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.Delete);
+            this.Controls.Add(this.AlwaysUsing0InsteadNull);
+            this.Controls.Add(this.AlwaysDeteleDataTable);
+            this.Controls.Add(this.AlwaysDeteleDataBase);
             this.Controls.Add(this.Read);
             this.Controls.Add(this.richTextBox1);
             this.Controls.Add(this.Write);
@@ -84,6 +138,7 @@
             this.Name = "Form1";
             this.Text = "Form1";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -93,6 +148,10 @@
         private System.Windows.Forms.Button Write;
         private System.Windows.Forms.Button Read;
         public System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.CheckBox AlwaysDeteleDataBase;
+        private System.Windows.Forms.CheckBox AlwaysDeteleDataTable;
+        private System.Windows.Forms.CheckBox AlwaysUsing0InsteadNull;
+        private System.Windows.Forms.Button Delete;
     }
 }
 

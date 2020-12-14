@@ -30,10 +30,10 @@ namespace sqlserverTest
             string dataTableName = "coor";
 
             SqlConnection sqlCnt = new SqlConnection(connectionString);
-            sqlCD.sqlCreate(fileName, sqlCnt, true);
+            sqlCD.sqlCreate(fileName, sqlCnt, AlwaysDeteleDataBase.Checked);
             // 创建数据表
-            sqlCD.createDataTable(dataTableName, sqlCnt, true);
-            sqlCD.createDataTable("test", sqlCnt, true);
+            sqlCD.createDataTable(dataTableName, sqlCnt, AlwaysDeteleDataTable.Checked);
+            sqlCD.createDataTable("test", sqlCnt, AlwaysDeteleDataTable.Checked);
             // 显示所有数据表
             Form1.form1.richTextBox1.Text += "数据表名：" + "\r\n";
             string[] tablesName = sqlCD.getDataTablesName(sqlCnt);
@@ -44,6 +44,7 @@ namespace sqlserverTest
             // 插入一列
             sqlDataOperater.addColumns(dataTableName, "X", "DECIMAL(12,4)", sqlCnt);
             sqlDataOperater.addColumns(dataTableName, "Y", "DECIMAL(12,4)", sqlCnt);
+            sqlDataOperater.addColumns(dataTableName, "Z", "DECIMAL(12,4)", sqlCnt);
             // 查询某个数据表的列名
             Form1.form1.richTextBox1.Text += String.Format("数据表{0}的列名：", dataTableName) + "\r\n";
             string[] columns = r.getColumns(dataTableName, sqlCnt);
@@ -59,20 +60,20 @@ namespace sqlserverTest
         private void Write_Click(object sender, EventArgs e)
         {
             string tableName = "coor";
-            string[] columnsName = { "X", "Y" };
-            InsertandDelete sqlDataOperate = new InsertandDelete();
+            string[] columnsName = { "X", "Y", "Z" };
+            InsertandDelete sqlDataOperater = new InsertandDelete();
             string[][] dataRows = new string[][]
             {
-                new string[]{"1000","2000" },
-                new string[]{"4000","5000" },
-                new string[]{"6000" },
+                new string[]{"1000","2000","3000" },
+                new string[]{"4000","5000","6000" },
+                new string[]{"7000" },
             };
 
             SqlConnection sqlCnt = new SqlConnection(connectionString);
             sqlCnt.Open();
             for (int i = 0; i < dataRows.Length; i++)
             {
-                sqlDataOperate.insertValues(tableName, columnsName, dataRows[i], sqlCnt, true);
+                sqlDataOperater.insertValues(tableName, columnsName, dataRows[i], sqlCnt, AlwaysUsing0InsteadNull.Checked);
             }
             sqlCnt.Close();
             sqlCnt.Dispose();
@@ -90,12 +91,23 @@ namespace sqlserverTest
             {
                 richTextBox1.Text += str + "\r\n";
             }
-            richTextBox1.Text += "\r\n字段X的值如下：\n";
+            richTextBox1.Text += "\r\ncoor表中 字段 X 的值如下：\n";
             string[] values = r.getColumnValues(tableName, columnName, sqlCnt);
             foreach (string str in values)
             {
                 richTextBox1.Text += str + "\r\n";
             }
+            sqlCnt.Close();
+            sqlCnt.Dispose();
+        }
+
+        private void Delete_Click(object sender, EventArgs e)
+        {
+            richTextBox1.Text += "删除 Y 字段\r\n";
+            SqlConnection sqlCnt = new SqlConnection(connectionString);
+            sqlCnt.Open();
+            sqlDataOperater.detColumn("Y", "coor", sqlCnt);
+
             sqlCnt.Close();
             sqlCnt.Dispose();
         }
