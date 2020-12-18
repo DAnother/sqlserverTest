@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Data.SqlClient;
-using sqlServerOperationFuncs;
+using SqlServerOperationFuncs;
 using System.Data;
 
 namespace sqlserverTest

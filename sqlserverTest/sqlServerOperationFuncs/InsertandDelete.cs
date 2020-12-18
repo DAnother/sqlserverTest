@@ -4,7 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Windows.Forms;
 
-namespace sqlServerOperationFuncs
+namespace SqlServerOperationFuncs
 {
     /*
      * InsertandDelete类主要实现功能

@@ -4,7 +4,7 @@ using System.Data;
 using System.Windows.Forms;
 using System.Collections;
 
-namespace sqlServerOperationFuncs
+namespace SqlServerOperationFuncs
 {
     /*
      * Read
@@ -49,6 +49,7 @@ namespace sqlServerOperationFuncs
             return (string[])array.ToArray(typeof(string));
         }
 
+        // 获取字段的类型
         public string[] getTypeOfColumns(string tableName, SqlConnection sqlCnt)
         {
             ArrayList array = new ArrayList();

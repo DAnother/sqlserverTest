@@ -1,8 +1,8 @@
-﻿using sqlServerOperationFuncs;
+﻿using SqlServerOperationFuncs;
 using System;
 using System.Data.SqlClient;
 using System.Windows.Forms;
-using fileOperator;
+using FileOperator;
 
 namespace sqlserverTest
 {
@@ -60,7 +60,7 @@ namespace sqlserverTest
             //string fileName = jiafang.form2.textBox1.Text;
             string fileName = @"D:\Data\dwg\032028.dwg";
             Form2.form2.richTextBox1.Text += "\r\n文件" + fileName + "是否被占用：\r\n" +
-                fileInfo.IsFileInUsing(fileName).ToString();
+                FileInfo.IsFileInUsing(fileName).ToString();
         }
     }
 }

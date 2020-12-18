@@ -4,8 +4,9 @@ using System.Windows.Forms;
 using System;
 using System.IO;
 using System.Collections;
+using FileOperator;
 
-namespace sqlServerOperationFuncs
+namespace SqlServerOperationFuncs
 {
     /*
      * CreateandDrop类主要实现功能
@@ -13,7 +14,7 @@ namespace sqlServerOperationFuncs
      * 2.创建数据表
      * 3.判断数据库是否存在
      * 4.判断数据表是否存在
-     * 5.判断文件是否存在
+     * 
      * 6.删除数据库
      * 7.删除数据表
      * 8.获取数据表名列表
@@ -51,7 +52,7 @@ namespace sqlServerOperationFuncs
                 {
                     detDataBase(dataBaseName, sqlCnt);
                     // 删除.mdf、日志文件
-                    if (isFileExists(Path.GetDirectoryName(fileName), Path.GetFileName(fileName)) > 0)
+                    if (FileOperator.FileInfo.isFileExists(Path.GetDirectoryName(fileName), Path.GetFileName(fileName)) > 0)
                     {
                         string path = Path.GetDirectoryName(fileName);
                         string mdfFileName = path + "\\" + Path.GetFileName(fileName);
@@ -67,7 +68,7 @@ namespace sqlServerOperationFuncs
             }
             else if (flag == 0)
             {
-                flag = isFileExists(Path.GetDirectoryName(fileName), Path.GetFileName(fileName));
+                flag = FileOperator.FileInfo.isFileExists(Path.GetDirectoryName(fileName), Path.GetFileName(fileName));
                 if (flag > 0)
                 {
                     string path = Path.GetDirectoryName(fileName);
@@ -201,27 +202,6 @@ namespace sqlServerOperationFuncs
             {
                 sqlCnt.Close();
                 // sqlCnt.Dispose();
-            }
-            return flag;
-        }
-
-        /// <summary>
-        /// 判断文件是否存在
-        /// </summary>
-        /// <param name="filePath"></param>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        public int isFileExists(string filePath, string fileName)
-        {
-            int flag = 0;
-            try
-            {
-                flag = File.Exists(filePath + "\\" + fileName) ? 1 : 0;
-            }
-            catch (Exception ex)
-            {
-                flag = -1;
-                MessageBox.Show(ex.ToString(), "Error");
             }
             return flag;
         }
