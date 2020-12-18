@@ -15,7 +15,7 @@ namespace sqlserverTest
             form1 = this;
         }
 
-        string connectionString = "Data Source = (local);Initial Catalog = tempdb;Integrated Security = true";
+        string connectionString = "Data Source = (local); Integrated Security = true";
         CreateandDrop sqlCD = new CreateandDrop();
         InsertandDelete sqlDataOperater = new InsertandDelete();
         Read r = new Read();
@@ -32,8 +32,8 @@ namespace sqlserverTest
             SqlConnection sqlCnt = new SqlConnection(connectionString);
             sqlCD.sqlCreate(fileName, sqlCnt, AlwaysDeteleDataBase.Checked);
             // 创建数据表
-            sqlCD.createDataTable(dataTableName, sqlCnt, AlwaysDeteleDataTable.Checked);
-            sqlCD.createDataTable("test", sqlCnt, AlwaysDeteleDataTable.Checked);
+            sqlCD.createDataTable(dataTableName, "id", "INT", sqlCnt, AlwaysDeteleDataTable.Checked);
+            sqlCD.createDataTable("test", "id", "INT", sqlCnt, AlwaysDeteleDataTable.Checked);
             // 显示所有数据表
             Form1.form1.richTextBox1.Text += "数据表名：" + "\r\n";
             string[] tablesName = sqlCD.getDataTablesName(sqlCnt);
@@ -94,6 +94,11 @@ namespace sqlserverTest
             richTextBox1.Text += "\r\ncoor表中 字段 X 的值如下：\n";
             string[] values = r.getColumnValues(tableName, columnName, sqlCnt);
             foreach (string str in values)
+            {
+                richTextBox1.Text += str + "\r\n";
+            }
+            string[] columns = r.getTypeOfColumns("coor", sqlCnt);
+            foreach (string str in columns)
             {
                 richTextBox1.Text += str + "\r\n";
             }

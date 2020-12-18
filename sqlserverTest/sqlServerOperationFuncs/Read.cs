@@ -49,6 +49,33 @@ namespace sqlServerOperationFuncs
             return (string[])array.ToArray(typeof(string));
         }
 
+        public string[] getTypeOfColumns(string tableName, SqlConnection sqlCnt)
+        {
+            ArrayList array = new ArrayList();
+            try
+            {
+                if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
+                SqlCommand sqlCmd = sqlCnt.CreateCommand();
+                sqlCmd.CommandText =
+                    String.Format("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME ='{0}'", tableName);
+                SqlDataReader reader = sqlCmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    array.Add(reader.GetString(0));
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString(), "Error");
+            }
+            finally
+            {
+                sqlCnt.Close();
+            }
+
+            return (string[])array.ToArray(typeof(string));
+        }
+
         /// <summary>
         /// 返回一个表的所有值
         /// </summary>

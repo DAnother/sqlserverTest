@@ -23,7 +23,7 @@ namespace sqlServerOperationFuncs
     class CreateandDrop
     {
         /// <summary>
-        /// 
+        /// 创建数据库
         /// </summary>
         /// <param name="fileName"></param>
         /// <param name="sqlCnt"></param>
@@ -43,14 +43,13 @@ namespace sqlServerOperationFuncs
              */
             string dataBaseName = Path.GetFileNameWithoutExtension(fileName);
             // 检查数据库是否存在 若存在则考虑是否删除
-            int flag = (isDataBaseExists(dataBaseName, sqlCnt) + isFileExists(Path.GetDirectoryName(fileName), Path.GetFileName(fileName))) > 0 ? 1 : 0;
+            int flag = isDataBaseExists(dataBaseName, sqlCnt);
             if (flag == 1)
             {
                 MessageBox.Show("该数据库已存在，无法再次创建", "Warning!");
                 if (isAlwaysDetDataBase || MessageBox.Show("是否删除该数据库以及数据库分离文件并重新创建\r\n请谨慎删除！！！", "Warning!", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    if (isDataBaseExists(dataBaseName, sqlCnt) > 0)
-                        detDataBase(dataBaseName, sqlCnt);
+                    detDataBase(dataBaseName, sqlCnt);
                     // 删除.mdf、日志文件
                     if (isFileExists(Path.GetDirectoryName(fileName), Path.GetFileName(fileName)) > 0)
                     {
@@ -66,6 +65,18 @@ namespace sqlServerOperationFuncs
                     return false;
                 }
             }
+            else if (flag == 0)
+            {
+                flag = isFileExists(Path.GetDirectoryName(fileName), Path.GetFileName(fileName));
+                if (flag > 0)
+                {
+                    string path = Path.GetDirectoryName(fileName);
+                    string mdfFileName = path + "\\" + Path.GetFileName(fileName);
+                    string ldfFileName = path + "\\" + Path.GetFileNameWithoutExtension(fileName) + "_log.ldf";
+                    File.Delete(mdfFileName);
+                    File.Delete(ldfFileName);
+                }
+            }
             else if (flag == -1)
             {
                 return false;
@@ -73,7 +84,7 @@ namespace sqlServerOperationFuncs
             if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
             // 创建数据库
             sqlCmd.CommandText =
-                String.Format("CREATE DATABASE {0} ON PRIMARY(NAME={0}, FILENAME='{1}')", dataBaseName, fileName);
+                String.Format("CREATE DATABASE {0} ON PRIMARY (NAME='mydatabase',FILENAME='{1}')", dataBaseName, fileName);
             sqlCmd.ExecuteNonQuery();
             // 分离数据库 便于拷贝数据文件
             sqlCmd.CommandText =
@@ -94,7 +105,7 @@ namespace sqlServerOperationFuncs
         /// <param name="dataTableName"></param>
         /// <param name="sqlCnt">连接选项</param>
         /// <param name="isAlwaysDetDataTable">是否始终删除</param>
-        public void createDataTable(string dataTableName, SqlConnection sqlCnt, bool isAlwaysDetDataTable)
+        public void createDataTable(string dataTableName,string primaryKey, string keyType, SqlConnection sqlCnt, bool isAlwaysDetDataTable)
         {
             int flag = isDataTableExists(dataTableName, sqlCnt);
             try
@@ -115,7 +126,7 @@ namespace sqlServerOperationFuncs
                     }
                 }
                 SqlCommand command2 =
-                    new SqlCommand("CREATE TABLE " + dataTableName + "(id int IDENTITY(1, 1) PRIMARY KEY not null)", sqlCnt);
+                    new SqlCommand("CREATE TABLE " + dataTableName + "(" + primaryKey + " " + keyType + ")", sqlCnt);
                 command2.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -139,19 +150,15 @@ namespace sqlServerOperationFuncs
         {
             int result = 0;
             string sqlCreateDBQuery;
-            sqlCreateDBQuery = string.Format("SELECT database_id from sys.databases WHERE Name  = '{0}'", dataBaseName);
+            sqlCreateDBQuery = string.Format("SELECT * from sys.databases WHERE Name  = '{0}'", dataBaseName);
 
             try
             {
                 if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
                 SqlCommand sqlCmd = new SqlCommand(sqlCreateDBQuery, sqlCnt);
                 object resultObj = sqlCmd.ExecuteScalar();
-                int databaseID = 0;
                 if (resultObj != null)
-                {
-                    int.TryParse(resultObj.ToString(), out databaseID);
-                }
-                result = (databaseID > 0) ? 1 : 0;
+                    result = 1;
             }
             catch (Exception ex)
             {
@@ -213,6 +220,7 @@ namespace sqlServerOperationFuncs
             }
             catch (Exception ex)
             {
+                flag = -1;
                 MessageBox.Show(ex.ToString(), "Error");
             }
             return flag;
