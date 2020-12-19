@@ -132,12 +132,8 @@ namespace SqlServerOperationFuncs
         {      
             try
             {
-                string[] columnsName = reader.getColumns(tableName, sqlCnt);
-                int flag = 0;
-                foreach(string str in columnsName)
-                {
-                    if (str == columnName) flag++;
-                }
+                if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
+                int flag = isKeyExist(columnName, tableName, sqlCnt) ? 1 : 0;
                 if (flag == 0)
                 {
                     MessageBox.Show("不存在该字段，无法删除", "Error");
@@ -157,6 +153,37 @@ namespace SqlServerOperationFuncs
             {
                 sqlCnt.Close();
             }
+        }
+
+        /// <summary>
+        /// 查询键是否存在
+        /// </summary>
+        /// <param name="columnName"></param>
+        /// <param name="tableName"></param>
+        /// <param name="sqlCnt"></param>
+        /// <returns></returns>
+        public bool isKeyExist(string columnName, string tableName, SqlConnection sqlCnt)
+        {
+            bool flag = false;
+            try
+            {
+                if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
+                string[] columnsName = reader.getColumns(tableName, sqlCnt);
+                foreach (string str in columnsName)
+                {
+                    if (str == columnName)
+                        flag = true;
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.ToString(), "Error");
+            }
+            finally
+            {
+                sqlCnt.Close();
+            }
+            return flag;
         }
 
        /// <summary>

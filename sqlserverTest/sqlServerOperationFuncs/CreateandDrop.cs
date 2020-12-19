@@ -71,11 +71,45 @@ namespace SqlServerOperationFuncs
                 flag = FileOperator.FileInfo.isFileExists(Path.GetDirectoryName(fileName), Path.GetFileName(fileName));
                 if (flag > 0)
                 {
+                    ServerInfo server = new ServerInfo();
                     string path = Path.GetDirectoryName(fileName);
                     string mdfFileName = path + "\\" + Path.GetFileName(fileName);
                     string ldfFileName = path + "\\" + Path.GetFileNameWithoutExtension(fileName) + "_log.ldf";
-                    File.Delete(mdfFileName);
-                    File.Delete(ldfFileName);
+                    if (FileOperator.FileInfo.IsFileInUsing(mdfFileName))
+                    {
+                        try
+                        {
+                            if (server.isMSSQLServerOpened())
+                                server.StopMSSQLServer();
+                            File.Delete(mdfFileName);
+                        }
+                        catch(Exception ex)
+                        {
+                            MessageBox.Show("文件被占用", "Error");
+                            MessageBox.Show(ex.ToString(), "Error");
+                            return false;
+                        }
+                    }
+                    else
+                        File.Delete(mdfFileName);
+                    if (FileOperator.FileInfo.IsFileInUsing(ldfFileName))
+                    {
+                        try
+                        {
+                            if (server.isMSSQLServerOpened())
+                                server.StopMSSQLServer();
+                            File.Delete(ldfFileName);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("文件被占用", "Error");
+                            MessageBox.Show(ex.ToString(), "Error");
+                            return false;
+                        }
+                    }
+                    else
+                        File.Delete(ldfFileName);
+                    server.StartMSSQLServer();
                 }
             }
             else if (flag == -1)
@@ -85,7 +119,7 @@ namespace SqlServerOperationFuncs
             if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
             // 创建数据库
             sqlCmd.CommandText =
-                String.Format("CREATE DATABASE {0} ON PRIMARY (NAME='mydatabase',FILENAME='{1}')", dataBaseName, fileName);
+                String.Format("CREATE DATABASE [{0}] ON PRIMARY (NAME='mydatabase',FILENAME='{1}')", dataBaseName, fileName);
             sqlCmd.ExecuteNonQuery();
             // 分离数据库 便于拷贝数据文件
             sqlCmd.CommandText =
@@ -127,7 +161,7 @@ namespace SqlServerOperationFuncs
                     }
                 }
                 SqlCommand command2 =
-                    new SqlCommand("CREATE TABLE " + dataTableName + "(" + primaryKey + " " + keyType + ")", sqlCnt);
+                    new SqlCommand("CREATE TABLE [" + dataTableName + "](" + primaryKey + " " + keyType + ")", sqlCnt);
                 command2.ExecuteNonQuery();
             }
             catch (Exception ex)

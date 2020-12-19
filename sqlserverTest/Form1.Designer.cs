@@ -36,6 +36,8 @@
             this.AlwaysDeteleDataTable = new System.Windows.Forms.CheckBox();
             this.AlwaysUsing0InsteadNull = new System.Windows.Forms.CheckBox();
             this.Delete = new System.Windows.Forms.Button();
+            this.OpenForm2 = new System.Windows.Forms.Button();
+            this.OpenForm3 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // Cteate
@@ -122,11 +124,33 @@
             this.Delete.UseVisualStyleBackColor = true;
             this.Delete.Click += new System.EventHandler(this.Delete_Click);
             // 
+            // OpenForm2
+            // 
+            this.OpenForm2.Location = new System.Drawing.Point(537, 54);
+            this.OpenForm2.Name = "OpenForm2";
+            this.OpenForm2.Size = new System.Drawing.Size(86, 37);
+            this.OpenForm2.TabIndex = 11;
+            this.OpenForm2.Text = "Form2";
+            this.OpenForm2.UseVisualStyleBackColor = true;
+            this.OpenForm2.Click += new System.EventHandler(this.OpenForm2_Click);
+            // 
+            // OpenForm3
+            // 
+            this.OpenForm3.Location = new System.Drawing.Point(537, 121);
+            this.OpenForm3.Name = "OpenForm3";
+            this.OpenForm3.Size = new System.Drawing.Size(86, 35);
+            this.OpenForm3.TabIndex = 12;
+            this.OpenForm3.Text = "Form3";
+            this.OpenForm3.UseVisualStyleBackColor = true;
+            this.OpenForm3.Click += new System.EventHandler(this.OpenForm3_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.OpenForm3);
+            this.Controls.Add(this.OpenForm2);
             this.Controls.Add(this.Delete);
             this.Controls.Add(this.AlwaysUsing0InsteadNull);
             this.Controls.Add(this.AlwaysDeteleDataTable);
@@ -152,6 +176,8 @@
         private System.Windows.Forms.CheckBox AlwaysDeteleDataTable;
         private System.Windows.Forms.CheckBox AlwaysUsing0InsteadNull;
         private System.Windows.Forms.Button Delete;
+        private System.Windows.Forms.Button OpenForm2;
+        private System.Windows.Forms.Button OpenForm3;
     }
 }
 
