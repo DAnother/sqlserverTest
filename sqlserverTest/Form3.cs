@@ -30,22 +30,22 @@ namespace sqlserverTest
             Read reader = new Read();
 
             string fileName = @"D:\Data\sqlserver\20201030.mdf";
-
             string connectionString = "Data Source=(local);Integrated Security=true";
             connectionString += ";AttachDBFileName=" + fileName;
+            string dataBaseName = fileName;
             SqlConnection sqlCnt = new SqlConnection(connectionString);
             sqlCnt.Open();
 
             List<string[]> columns = new List<string[]>();
-            string[] tables = cd.getDataTablesName(sqlCnt);
+            string[] tables = cd.getDataTablesName(fileName, sqlCnt);
             foreach (string table in tables)
             {
                 richTextBox1.Text += table + "\r\n";
-                string[] keys = reader.getColumns(table, sqlCnt);
+                string[] keys = reader.getColumns(dataBaseName, table, sqlCnt);
                 foreach (var key in keys)
                     richTextBox1.Text += key + ",";
                 richTextBox1.Text += "\r\n";
-                string[] key_type = reader.getTypeOfColumns(table, sqlCnt);
+                string[] key_type = reader.getTypeOfColumns(dataBaseName, table, sqlCnt);
                 foreach (var key in key_type)
                     richTextBox1.Text += key + ",";
                 richTextBox1.Text += "\r\n\r\n";
@@ -60,28 +60,28 @@ namespace sqlserverTest
             sqlCnt.ConnectionString = connectionString;
             sqlCnt.Open();
             fileName = @"D:\Data\sqlserver\20201030_test.mdf";
-            string dataBaseName = Path.GetFileNameWithoutExtension(fileName);
+            dataBaseName = Path.GetFileNameWithoutExtension(fileName);
             cd.sqlCreate(fileName, sqlCnt);
             for (int count = 0; count < tables.Length; count++)
             {
                 cd.createDataTable(dataBaseName, tables[count], columns[count * 2][0], columns[count * 2 + 1][0], sqlCnt);
                 for (int i = 1; i < columns[count * 2].Length; i++)
                 {
-                    insert.addColumns(tables[count], columns[count * 2][i], columns[count * 2 + 1][i], sqlCnt);
+                    insert.addColumns(dataBaseName, tables[count], columns[count * 2][i], columns[count * 2 + 1][i], sqlCnt);
                 }
             }
 
             richTextBox1.Text += "\r\n---------------------------------------\r\n";
 
-            tables = cd.getDataTablesName(sqlCnt);
+            tables = cd.getDataTablesName(dataBaseName, sqlCnt);
             foreach (string table in tables)
             {
                 richTextBox1.Text += table + "\r\n";
-                string[] keys = reader.getColumns(table, sqlCnt);
+                string[] keys = reader.getColumns(dataBaseName, table, sqlCnt);
                 foreach (var key in keys)
                     richTextBox1.Text += key + ",";
                 richTextBox1.Text += "\r\n";
-                string[] key_type = reader.getTypeOfColumns(table, sqlCnt);
+                string[] key_type = reader.getTypeOfColumns(dataBaseName, table, sqlCnt);
                 foreach (var key in key_type)
                     richTextBox1.Text += key + ",";
                 richTextBox1.Text += "\r\n\r\n";

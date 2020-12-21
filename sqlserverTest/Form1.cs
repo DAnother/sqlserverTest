@@ -52,18 +52,18 @@ namespace sqlserverTest
             sqlCnt.Open();
             // 显示所有数据表
             Form1.form1.richTextBox1.Text += "数据表名：" + "\r\n";
-            string[] tablesName = sqlCD.getDataTablesName(sqlCnt);
+            string[] tablesName = sqlCD.getDataTablesName(dataBaseName, sqlCnt);
             foreach (var em in tablesName)
             {
                 Form1.form1.richTextBox1.Text += em + "\r\n";
             }
             // 插入一列
-            sqlDataOperater.addColumns(dataTableName, "X", "DECIMAL(12,4)", sqlCnt);
-            sqlDataOperater.addColumns(dataTableName, "Y", "DECIMAL(12,4)", sqlCnt);
-            sqlDataOperater.addColumns(dataTableName, "Z", "DECIMAL(12,4)", sqlCnt);
+            sqlDataOperater.addColumns(dataBaseName, dataTableName, "X", "DECIMAL(12,4)", sqlCnt);
+            sqlDataOperater.addColumns(dataBaseName, dataTableName, "Y", "DECIMAL(12,4)", sqlCnt);
+            sqlDataOperater.addColumns(dataBaseName, dataTableName, "Z", "DECIMAL(12,4)", sqlCnt);
             // 查询某个数据表的列名
             Form1.form1.richTextBox1.Text += String.Format("数据表{0}的列名：", dataTableName) + "\r\n";
-            string[] columns = r.getColumns(dataTableName, sqlCnt);
+            string[] columns = r.getColumns(dataBaseName, dataTableName, sqlCnt);
             foreach (var em in columns)
             {
                 Form1.form1.richTextBox1.Text += em + "\r\n";
@@ -78,49 +78,57 @@ namespace sqlserverTest
         {
             connectionString =
                 String.Format("Data Source=(local);Integrated Security = true;AttachDBFileName={0}", fileName);
+            connectionString += ";DataBase=" + Path.GetFileNameWithoutExtension(fileName);
+            string dataBaseName = Path.GetFileNameWithoutExtension(fileName);
             string tableName = "coor";
-            string[] columnsName = { "X", "Y", "Z" };
+            string[] columnsName = { "id","X", "Y", "Z" };
             InsertandDelete sqlDataOperater = new InsertandDelete();
             string[][] dataRows = new string[][]
             {
-                new string[]{"1000","2000","3000" },
-                new string[]{"4000","5000","6000" },
-                new string[]{"7000" },
+                new string[]{"1","1000","2000","3000" },
+                new string[]{"2","4000","5000","6000" },
+                new string[]{"3","7000" },
             };
 
             SqlConnection sqlCnt = new SqlConnection(connectionString);
             sqlCnt.Open();
             for (int i = 0; i < dataRows.Length; i++)
             {
-                sqlDataOperater.insertValues(tableName, columnsName, dataRows[i], sqlCnt, AlwaysUsing0InsteadNull.Checked);
+                sqlDataOperater.insertValues(dataBaseName, tableName, columnsName, dataRows[i], sqlCnt, AlwaysUsing0InsteadNull.Checked);
             }
+            sqlCD.detachDataBase(dataBaseName, sqlCnt);
             sqlCnt.Close();
             sqlCnt.Dispose();
         }
 
         private void Read_Click(object sender, EventArgs e)
         {
+            connectionString = "Data Source=(local);Integrated Security = true;User Instance=False;AttachDBFileName=";
+            connectionString += fileName;
+            string dataBaseName = fileName;
             SqlConnection sqlCnt = new SqlConnection(connectionString);
             sqlCnt.Open();
             Read r = new Read();
             string tableName = "coor";
             string columnName = "X";
-            string[] table = r.getAllValues("coor", sqlCnt);
+            string[] table = r.getAllValues(dataBaseName, "coor", sqlCnt);
             foreach (string str in table)
             {
                 richTextBox1.Text += str + "\r\n";
             }
             richTextBox1.Text += "\r\ncoor表中 字段 X 的值如下：\n";
-            string[] values = r.getColumnValues(tableName, columnName, sqlCnt);
+            string[] values = r.getColumnValues(dataBaseName, tableName, columnName, sqlCnt);
             foreach (string str in values)
             {
                 richTextBox1.Text += str + "\r\n";
             }
-            string[] columns = r.getTypeOfColumns("coor", sqlCnt);
+            richTextBox1.Text += "字段类型如下：\r\n";
+            string[] columns = r.getTypeOfColumns(dataBaseName, "coor", sqlCnt);
             foreach (string str in columns)
             {
                 richTextBox1.Text += str + "\r\n";
             }
+            sqlCD.detachDataBase(dataBaseName, sqlCnt);
             sqlCnt.Close();
             sqlCnt.Dispose();
         }
@@ -130,8 +138,9 @@ namespace sqlserverTest
             richTextBox1.Text += "删除 Y 字段\r\n";
             SqlConnection sqlCnt = new SqlConnection(connectionString);
             sqlCnt.Open();
-            sqlDataOperater.detColumn("Y", "coor", sqlCnt);
-
+            string dataBaseName = fileName;
+            sqlDataOperater.detColumn(dataBaseName, "Y", "coor", sqlCnt);
+            sqlCD.detachDataBase(dataBaseName, sqlCnt);
             sqlCnt.Close();
             sqlCnt.Dispose();
         }

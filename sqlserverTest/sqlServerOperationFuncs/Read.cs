@@ -22,13 +22,16 @@ namespace SqlServerOperationFuncs
         /// <param name="tableName"></param>
         /// <param name="sqlCnt"></param>
         /// <returns></returns>
-        public string[] getColumns(string tableName, SqlConnection sqlCnt)
+        public string[] getColumns(string dataBaseName, string tableName, SqlConnection sqlCnt)
         {
             ArrayList array = new ArrayList();
             try
             {
                 if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
                 SqlCommand sqlCmd = sqlCnt.CreateCommand();
+                sqlCmd.CommandText =
+                    String.Format("USE [{0}]", dataBaseName);
+                sqlCmd.ExecuteNonQuery();
                 sqlCmd.CommandText =
                     String.Format("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{0}'", tableName);
                 SqlDataReader dr = sqlCmd.ExecuteReader();
@@ -50,13 +53,16 @@ namespace SqlServerOperationFuncs
         }
 
         // 获取字段的类型
-        public string[] getTypeOfColumns(string tableName, SqlConnection sqlCnt)
+        public string[] getTypeOfColumns(string dataBaseName, string tableName, SqlConnection sqlCnt)
         {
             ArrayList array = new ArrayList();
             try
             {
                 if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
                 SqlCommand sqlCmd = sqlCnt.CreateCommand();
+                sqlCmd.CommandText =
+                    String.Format("USE [{0}]", dataBaseName);
+                sqlCmd.ExecuteNonQuery();
                 sqlCmd.CommandText =
                     String.Format("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME ='{0}'", tableName);
                 SqlDataReader reader = sqlCmd.ExecuteReader();
@@ -83,17 +89,20 @@ namespace SqlServerOperationFuncs
         /// <param name="tableName"></param>
         /// <param name="sqlCnt"></param>
         /// <returns></returns>
-        public string[] getAllValues(string tableName, SqlConnection sqlCnt)
+        public string[] getAllValues(string dataBaseName, string tableName, SqlConnection sqlCnt)
         {
             ArrayList array = new ArrayList();
             array.Add(tableName);
             try
             {
                 if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
-                string[] columnsName = getColumns(tableName, sqlCnt);
+                string[] columnsName = getColumns(dataBaseName, tableName, sqlCnt);
                 string[] tempStrArray = new string[columnsName.Length];
                 if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
                 SqlCommand sqlCmd = sqlCnt.CreateCommand();
+                sqlCmd.CommandText =
+                    String.Format("USE [{0}]", dataBaseName);
+                sqlCmd.ExecuteNonQuery();
                 sqlCmd.CommandText =
                     String.Format("SELECT * FROM {0}", tableName);
                 SqlDataReader sdr = sqlCmd.ExecuteReader();
@@ -130,7 +139,7 @@ namespace SqlServerOperationFuncs
         /// <param name="columnName"></param>
         /// <param name="sqlCnt"></param>
         /// <returns></returns>
-        public string[] getColumnValues(string tableName, string columnName, SqlConnection sqlCnt)
+        public string[] getColumnValues(string dataBaseName, string tableName, string columnName, SqlConnection sqlCnt)
         {
             ArrayList array = new ArrayList();
             try
@@ -138,6 +147,9 @@ namespace SqlServerOperationFuncs
                 if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
 
                 SqlCommand sqlCmd = sqlCnt.CreateCommand();
+                sqlCmd.CommandText =
+                    String.Format("USE [{0}]", dataBaseName);
+                sqlCmd.ExecuteNonQuery();
                 sqlCmd.CommandText = 
                     String.Format("SELECT {1} FROM {0}", tableName,columnName);
                 SqlDataReader reader = sqlCmd.ExecuteReader();

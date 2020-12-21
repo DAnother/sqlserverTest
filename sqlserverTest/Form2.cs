@@ -27,16 +27,16 @@ namespace sqlserverTest
             string fileName = Form2.form2.textBox1.Text;
             //string fileName = Path.GetFileNameWithoutExtension(jiafang.form2.textBox1.Text);
             connectionString += fileName;
-
+            string dataBaseName = fileName;
             SqlConnection sqlCnt = new SqlConnection(connectionString);
             sqlCnt.Open();
 
             CreateandDrop cd = new CreateandDrop();
-            string[] tables = cd.getDataTablesName(sqlCnt);
+            string[] tables = cd.getDataTablesName(fileName, sqlCnt);
 
 
             Read r = new Read();
-            string[] datas = r.getColumns("HD_STREETVIEW_FACADEINFO", sqlCnt);
+            string[] datas = r.getColumns(dataBaseName, "HD_STREETVIEW_FACADEINFO", sqlCnt);
 
             sqlCnt.ConnectionString = connectionString;
             sqlCnt.Open();

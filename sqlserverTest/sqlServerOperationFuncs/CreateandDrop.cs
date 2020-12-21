@@ -167,7 +167,7 @@ namespace SqlServerOperationFuncs
                     String.Format("USE [{0}]", dataBaseName);
                 sqlCmd.ExecuteNonQuery();
                 sqlCmd.CommandText =
-                    String.Format("CREATE TABLE [{0}]({1} {2})", dataTableName, primaryKey, keyType);
+                    String.Format("CREATE TABLE [{0}]({1} {2} NOT NULL)", dataTableName, primaryKey, keyType);
                 sqlCmd.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -303,7 +303,7 @@ namespace SqlServerOperationFuncs
         /// <param name="dataBaseName"></param>
         /// <param name="sqlCnt"></param>
         /// <returns></returns>
-        public string[] getDataTablesName(SqlConnection sqlCnt)
+        public string[] getDataTablesName(string dataBaseName, SqlConnection sqlCnt)
         {
             ArrayList tables = new ArrayList();
             if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
@@ -312,6 +312,9 @@ namespace SqlServerOperationFuncs
                 SqlCommand sqlCmd = sqlCnt.CreateCommand();
                 // 可用于列举数据表 便于调试
                 // 使用信息架构视图
+                sqlCmd.CommandText =
+                    String.Format("USE [{0}]", dataBaseName);
+                sqlCmd.ExecuteNonQuery();
                 sqlCmd.CommandText =
                     String.Format("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
                 SqlDataReader dr = sqlCmd.ExecuteReader();
