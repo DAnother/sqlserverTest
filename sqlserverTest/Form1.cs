@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System.Data.SqlClient;
 using SqlServerOperationFuncs;
 using System.Data;
+using System.IO;
 
 namespace sqlserverTest
 {
@@ -15,7 +16,8 @@ namespace sqlserverTest
             form1 = this;
         }
 
-        string connectionString = "Data Source = (local); Integrated Security = true";
+        string connectionString = "Data Source=(local);Integrated Security = true;User Instance=False";
+        string fileName = @"D:\Data\sqlserver\test.mdf";
         CreateandDrop sqlCD = new CreateandDrop();
         InsertandDelete sqlDataOperater = new InsertandDelete();
         Read r = new Read();
@@ -26,14 +28,28 @@ namespace sqlserverTest
         /// <param name="e"></param>
         private void Create_Click(object sender, EventArgs e)
         {
-            string fileName = @"D:\Data\sqlserver\test.mdf";
+            connectionString = "Data Source=(local);Integrated Security = true;User Instance=False";
+            sqlCD.isAlwaysDetDataBase = true;
+            sqlCD.isAlwaysDetDataTable = true;
+            string dataBaseName = Path.GetFileNameWithoutExtension(fileName);
             string dataTableName = "coor";
 
             SqlConnection sqlCnt = new SqlConnection(connectionString);
-            sqlCD.sqlCreate(fileName, sqlCnt, AlwaysDeteleDataBase.Checked);
+            sqlCnt.Open();
+            sqlCD.sqlCreate(fileName, sqlCnt);
+            //sqlCnt.Dispose();
+
+
             // 创建数据表
-            sqlCD.createDataTable(dataTableName, "id", "INT", sqlCnt, AlwaysDeteleDataTable.Checked);
-            sqlCD.createDataTable("test", "id", "INT", sqlCnt, AlwaysDeteleDataTable.Checked);
+            sqlCD.isAlwaysDetDataBase = AlwaysDeteleDataTable.Checked;
+            sqlCD.isAlwaysDetDataTable = AlwaysDeteleDataTable.Checked;
+            sqlCD.createDataTable(dataBaseName, dataTableName, "id", "INT", sqlCnt);
+            sqlCD.createDataTable(dataBaseName, "table1", "id", "INT", sqlCnt);
+
+            sqlCnt.Close();
+            connectionString += ";Database=" + dataBaseName;
+            sqlCnt.ConnectionString = connectionString;
+            sqlCnt.Open();
             // 显示所有数据表
             Form1.form1.richTextBox1.Text += "数据表名：" + "\r\n";
             string[] tablesName = sqlCD.getDataTablesName(sqlCnt);
@@ -52,13 +68,16 @@ namespace sqlserverTest
             {
                 Form1.form1.richTextBox1.Text += em + "\r\n";
             }
+
+            sqlCD.detachDataBase(dataBaseName, sqlCnt);
             // 关闭连接 释放连接对象
-            sqlCnt.Close();
             sqlCnt.Dispose();
         }
 
         private void Write_Click(object sender, EventArgs e)
         {
+            connectionString =
+                String.Format("Data Source=(local);Integrated Security = true;AttachDBFileName={0}", fileName);
             string tableName = "coor";
             string[] columnsName = { "X", "Y", "Z" };
             InsertandDelete sqlDataOperater = new InsertandDelete();

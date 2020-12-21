@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace FileOperator
 {
-    class FileInfo
+    class GetFileInfo
     {
         /// <summary>
         /// 判断文件是否被占用

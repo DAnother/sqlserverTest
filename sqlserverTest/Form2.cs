@@ -3,6 +3,7 @@ using System;
 using System.Data.SqlClient;
 using System.Windows.Forms;
 using FileOperator;
+using System.IO;
 
 namespace sqlserverTest
 {
@@ -32,19 +33,17 @@ namespace sqlserverTest
 
             CreateandDrop cd = new CreateandDrop();
             string[] tables = cd.getDataTablesName(sqlCnt);
-            SqlCommand sqlCmd = sqlCnt.CreateCommand();
 
 
             Read r = new Read();
             string[] datas = r.getColumns("HD_STREETVIEW_FACADEINFO", sqlCnt);
 
-            //if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
-            //sqlCmd.CommandText =
-            //    String.Format("EXEC sp_detach_db '{0}', 'true'", Path.GetFileNameWithoutExtension(fileName));
-            //sqlCmd.ExecuteNonQuery();
+            sqlCnt.ConnectionString = connectionString;
+            sqlCnt.Open();
+            cd.detachDataBase(fileName, sqlCnt);
 
-            sqlCnt.Close();
             sqlCnt.Dispose();
+
 
             foreach (string table in tables)
                 richTextBox1.Text += table + "\r\n";
@@ -60,7 +59,7 @@ namespace sqlserverTest
             //string fileName = jiafang.form2.textBox1.Text;
             string fileName = @"D:\Data\dwg\032028.dwg";
             Form2.form2.richTextBox1.Text += "\r\n文件" + fileName + "是否被占用：\r\n" +
-                FileInfo.IsFileInUsing(fileName).ToString();
+                GetFileInfo.IsFileInUsing(fileName).ToString();
         }
     }
 }
