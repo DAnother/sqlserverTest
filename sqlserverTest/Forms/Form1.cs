@@ -117,7 +117,7 @@ namespace sqlserverTest
                 richTextBox1.Text += str + "\r\n";
             }
             richTextBox1.Text += "\r\ncoor表中 字段 X 的值如下：\n";
-            string[] values = r.getColumnValues(dataBaseName, tableName, columnName, sqlCnt);
+            string[] values = r.getColumnValues(dataBaseName, tableName, columnName,"INT", sqlCnt);
             foreach (string str in values)
             {
                 richTextBox1.Text += str + "\r\n";

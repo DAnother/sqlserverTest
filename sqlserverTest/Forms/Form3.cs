@@ -64,9 +64,14 @@ namespace sqlserverTest
             cd.sqlCreate(fileName, sqlCnt);
             for (int count = 0; count < tables.Length; count++)
             {
+                columns[count * 2][0] = columns[count * 2][0].Replace("varchar", "varchar(50)");
+                columns[count * 2 + 1][0] = columns[count * 2 + 1][0].Replace("varchar", "varchar(50)");
+                
                 cd.createDataTable(dataBaseName, tables[count], columns[count * 2][0], columns[count * 2 + 1][0], sqlCnt);
                 for (int i = 1; i < columns[count * 2].Length; i++)
                 {
+                    columns[count * 2][i] = columns[count * 2][i].Replace("varchar", "varchar(50)");
+                    columns[count * 2 + 1][i] = columns[count * 2 + 1][i].Replace("varchar", "varchar(50)");
                     insert.addColumns(dataBaseName, tables[count], columns[count * 2][i], columns[count * 2 + 1][i], sqlCnt);
                 }
             }

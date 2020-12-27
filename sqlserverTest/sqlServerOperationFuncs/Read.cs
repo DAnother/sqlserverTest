@@ -3,6 +3,7 @@ using System.Data.SqlClient;
 using System.Data;
 using System.Windows.Forms;
 using System.Collections;
+using System.IO;
 
 namespace SqlServerOperationFuncs
 {
@@ -16,6 +17,7 @@ namespace SqlServerOperationFuncs
 
     class Read
     {
+        //TODO: Another-当字段类型为Image时，不能直接读取
         /// <summary>
         /// 查询数据表的列名
         /// </summary>
@@ -52,7 +54,13 @@ namespace SqlServerOperationFuncs
             return (string[])array.ToArray(typeof(string));
         }
 
-        // 获取字段的类型
+        /// <summary>
+        /// 获取字段的类型
+        /// </summary>
+        /// <param name="dataBaseName"></param>
+        /// <param name="tableName"></param>
+        /// <param name="sqlCnt"></param>
+        /// <returns></returns>
         public string[] getTypeOfColumns(string dataBaseName, string tableName, SqlConnection sqlCnt)
         {
             ArrayList array = new ArrayList();
@@ -108,7 +116,7 @@ namespace SqlServerOperationFuncs
                 SqlDataReader sdr = sqlCmd.ExecuteReader();
                 while (sdr.Read())
                 {
-                    for(int i = 0; i < columnsName.Length; i++)
+                    for (int i = 0; i < columnsName.Length; i++)
                     {
                         string tempStr = (sdr.GetValue(sdr.GetOrdinal(columnsName[i]))).ToString();
                         tempStrArray[i] = (columnsName[i] + ":" + tempStr + "\t");
@@ -139,23 +147,30 @@ namespace SqlServerOperationFuncs
         /// <param name="columnName"></param>
         /// <param name="sqlCnt"></param>
         /// <returns></returns>
-        public string[] getColumnValues(string dataBaseName, string tableName, string columnName, SqlConnection sqlCnt)
+        public string[] getColumnValues(string dataBaseName, string tableName, string columnName,string columnType, SqlConnection sqlCnt, out MemoryStream[] mStream)
         {
+            mStream = null;
             ArrayList array = new ArrayList();
             try
             {
                 if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
-
-                SqlCommand sqlCmd = sqlCnt.CreateCommand();
-                sqlCmd.CommandText =
-                    String.Format("USE [{0}]", dataBaseName);
-                sqlCmd.ExecuteNonQuery();
-                sqlCmd.CommandText = 
-                    String.Format("SELECT {1} FROM {0}", tableName,columnName);
-                SqlDataReader reader = sqlCmd.ExecuteReader();
-                while (reader.Read())
+                if (columnType.Contains("Image"))
                 {
-                    array.Add(reader[0].ToString());
+                    readImageData(dataBaseName, tableName, columnName, sqlCnt, out mStream);
+                }
+                else
+                {
+                    SqlCommand sqlCmd = sqlCnt.CreateCommand();
+                    sqlCmd.CommandText =
+                        String.Format("USE [{0}]", dataBaseName);
+                    sqlCmd.ExecuteNonQuery();
+                    sqlCmd.CommandText =
+                        String.Format("SELECT {0} FROM {1}", columnName, tableName);
+                    SqlDataReader reader = sqlCmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        array.Add(reader[0].ToString());
+                    }
                 }
             }
             catch (Exception ex)
@@ -169,5 +184,50 @@ namespace SqlServerOperationFuncs
             }
             return (string[])array.ToArray(typeof(string));
         }
+
+        /// <summary>
+        /// 读取Image格式的字段
+        /// </summary>
+        /// <param name="dataBaseName">数据库名</param>
+        /// <param name="tableName">表名</param>
+        /// <param name="keyName">Image格式的键</param>
+        /// <param name="sqlCnt">数据库链接</param>
+        /// <returns></returns>
+        public bool readImageData(string dataBaseName, string tableName, string keyName, SqlConnection sqlCnt, out MemoryStream[] mStream)
+        {
+            bool flag = false;
+            ArrayList array = new ArrayList();
+            try
+            {
+                if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
+                SqlCommand sqlCmd = sqlCnt.CreateCommand();
+                sqlCmd.CommandText =
+                    String.Format("USE [{0}]", dataBaseName);
+                sqlCmd.ExecuteNonQuery();
+                sqlCmd.CommandText =
+                    String.Format("SELECT * FROM {0}", tableName);
+                SqlDataReader sdr = sqlCmd.ExecuteReader();
+                while (sdr.Read())
+                {
+                    byte[] myData = (byte[])sdr[keyName];//读取第一个图片的位流
+                    MemoryStream stream = new MemoryStream(myData);
+                    array.Add(stream);
+                    stream.Close();
+                    stream.Dispose();
+                }
+                flag = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString(), "Error");
+            }
+            finally
+            {
+                sqlCnt.Close();
+            }
+            mStream = (MemoryStream[])array.ToArray(typeof(MemoryStream));
+            return flag;
+        }
+
     }
 }

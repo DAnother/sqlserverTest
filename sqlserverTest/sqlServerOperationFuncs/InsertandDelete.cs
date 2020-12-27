@@ -12,7 +12,9 @@ namespace SqlServerOperationFuncs
      * 2.按行插入数据
      * 3.删除字段
      * 以上 2020-12-14
-     * 3.
+     * 4.查询键是否存在
+     * 5.清空一个表
+     * 6.
      */
     class InsertandDelete
     {
@@ -79,7 +81,7 @@ namespace SqlServerOperationFuncs
                 // 获取所有字段值字符串
                 foreach (string str in values)
                 {
-                    valueStr += str + ",";
+                    valueStr += "\'" + str + "\',";
                 }
                 valueStr = valueStr.Substring(0, valueStr.Length - 1);
             }
@@ -192,6 +194,40 @@ namespace SqlServerOperationFuncs
             catch(Exception ex)
             {
                 MessageBox.Show(ex.ToString(), "Error");
+            }
+            finally
+            {
+                sqlCnt.Close();
+            }
+            return flag;
+        }
+
+        /// <summary>
+        /// 清空一个表
+        /// </summary>
+        /// <param name="dataBaseName"></param>
+        /// <param name="tableName"></param>
+        /// <param name="sqlCnt"></param>
+        /// <returns></returns>
+        public bool detAllValues(string dataBaseName, string tableName, SqlConnection sqlCnt)
+        {
+            bool flag = false;
+            try
+            {
+                if (sqlCnt.State == ConnectionState.Closed) sqlCnt.Open();
+                SqlCommand sqlCmd = sqlCnt.CreateCommand();
+                sqlCmd.CommandText =
+                    String.Format("USE [{0}]", dataBaseName);
+                sqlCmd.ExecuteNonQuery();
+                sqlCmd.CommandText =
+                    String.Format("DELETE FROM {0}", tableName);
+                sqlCmd.ExecuteNonQuery();
+                flag = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString(), "Error");
+                return false;
             }
             finally
             {
